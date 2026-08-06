@@ -1,6 +1,6 @@
 ---
 created: 2026-07-21
-updated: 2026-07-21
+updated: 2026-08-06
 
 tags:
   - airflow
@@ -215,3 +215,6 @@ Node Exporter → Prometheus ─┬─▶ Grafana (Dashboard)
 - CoreDNS 공식 문서
 - `systemd-tmpfiles` / `systemd-tmpfiles-clean.timer`
 - Prometheus Node Exporter, Grafana Alerting
+
+> 관련 문서: 이 클러스터 개선의 후속으로, 특정 노드에 NFS를 실적용하며 겪은 PV 마운트 장애는
+> [[persistent-volume-mount-troubleshooting]] 로 분리해 정리했다 (증상별 빠른 진단 인덱스 포함).
