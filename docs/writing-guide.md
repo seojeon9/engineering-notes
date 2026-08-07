@@ -122,6 +122,7 @@ data-platform/
     postgres/
     snowflake/
     spark/
+    etl/
 
 infrastructure/
     kubernetes/
