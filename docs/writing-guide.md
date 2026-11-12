@@ -217,6 +217,13 @@ scheduler-bottleneck.md
 각 Case 제목 옆에 **문제(장애)가 발생한 날짜**를 함께 적는다.
 
 - 날짜는 **문서를 작성한 날이 아니라 문제가 발생한 날**이다.
+- 해결한 날(적용일)도 아니다. 고친 날을 쓰면 Case마다 날짜의 의미가 달라진다.
+- 오래전부터 있던 **만성 문제**는 시작일이 없다. **문제로 처음 기록한 날**을 쓰고, 제목 바로 아래에 만성임을 한 줄 남긴다.
+
+```text
+## Case 1 (2026-07-27) — 일별 지표 배치: 애플리케이션 왕복과 다중행 INSERT
+> 만성 — 그 전부터 느렸고, 상류 누락 재적재 때 문제로 기록
+```
 - 형식은 `Case N (YYYY-MM-DD) — 한 줄 요약` 으로 통일한다.
 - 문서 작성일/수정일은 Front Matter(`created` / `updated`)에 따로 기록한다.
 
@@ -235,6 +242,66 @@ scheduler-bottleneck.md
 ```
 
 Git History와 함께 문서도 성장한다.
+
+## Case는 각자 완결된 구성을 갖는다.
+
+Case 2를 Case 1의 본문 중간(예: Case 1의 Result와 Lessons 사이)에 끼워 넣지 않는다.
+그러면 위에서부터 읽을 때 Case 2의 Lessons가 Case 1의 Lessons보다 먼저 나오고, 어느 결론이 어느 사례 것인지 섞인다.
+
+**각 Case는 그 자체로 Document Template 전체(Background → … → References)를 갖는다.**
+
+```text
+# 문서 제목
+
+> 범위: 이 문서가 다루는 판단 (엔진·도구와 무관한 기준)
+
+## TL;DR                    ← Case별 요약을 나란히
+## 빠른 진단 인덱스          ← 반복되는 문제라면 (아래 "증상 인덱스" 참고)
+
+---
+
+## Case 1 (YYYY-MM-DD) — 한 줄 요약
+### Background
+### Problem
+### Hypothesis / Investigation
+#### (세부 단계는 한 단계 아래 제목)
+### Root Cause
+### Solution
+### Trade-offs
+### Result
+### Lessons Learned          ← 1번부터
+### References
+
+---
+
+## Case 2 (YYYY-MM-DD) — 한 줄 요약
+### Background
+...
+### Lessons Learned          ← 다시 1번부터
+### References
+```
+
+규칙:
+
+- **문서 레벨**에는 Front Matter, 제목, 범위, TL;DR, 빠른 진단 인덱스만 둔다. 서사는 전부 Case 안에 둔다.
+- Case 제목은 `##`, Case 안의 템플릿 섹션은 `###`, 그 아래 세부는 `####`.
+- 구획선(`---`)은 **Case 사이에만** 둔다. Case 안에서는 쓰지 않는다 — 구획선이 곧 "다른 사례"라는 신호가 되게.
+- Lessons 번호는 **Case마다 1번부터** 다시 센다. 다른 Case를 가리킬 때는 `Case 1 Lesson 10` 처럼 Case를 붙인다.
+- 새 Case는 **문서 맨 끝**에 추가한다 (발생일 순).
+- TL;DR은 Case별 소제목으로 나눠 요약한다. 문서를 열자마자 "몇 번째 사례에서 무엇이 달랐는지"가 보여야 한다.
+- References도 Case 안에 둔다. 사례마다 참조한 기술이 다르다(예: Case 1은 PostgreSQL, Case 2는 Snowflake).
+
+### 단일 서사 문서를 Case 구조로 바꿀 때
+
+처음엔 사례가 하나라 Case 없이 쓴 문서에 두 번째 사례가 생기면:
+
+1. 기존 본문 전체를 `## Case 1 (발생일) — 한 줄 요약` 아래로 넣고, 제목을 한 단계씩 내린다 (`##` → `###`, `###` → `####`).
+2. 본문 문장은 고치지 않는다. 위치와 제목 레벨만 바꾼다.
+3. Case 1의 발생일은 문서 작성일(`created`)과 다를 수 있다 — 작성일은 대개 해결 후다.
+   일일 노트·이슈·커밋 기록에서 **문제로 처음 기록한 날**을 찾아 쓴다. 기록이 전혀 없을 때만 `created`를 쓴다.
+4. 문서 레벨 TL;DR·범위를 두 사례를 아우르게 다시 쓰고, 증상이 반복되면 진단 인덱스를 추가한다.
+
+이 구조가 적용된 예: `data-platform/etl/bulk-load-performance.md`
 
 ---
 
@@ -298,6 +365,9 @@ Lessons Learned
 References
 ```
 
+사례가 하나뿐인 문서는 이 템플릿을 그대로 쓴다.
+사례가 둘 이상이면 이 템플릿 전체가 **각 Case 안에** 들어간다 ("Case는 각자 완결된 구성을 갖는다" 참고).
+
 ---
 
 # 반복되는 문제는 "증상 인덱스"를 앞에 둔다
@@ -328,7 +398,9 @@ Troubleshooting·운영 문서는 서사(Background → … → Lessons)만으�
 
 > 서사는 이해를 위해, 인덱스는 재사용을 위해.
 
-이 패턴이 적용된 예: `persistent-volume-mount-troubleshooting.md`
+이 패턴이 적용된 예: `persistent-volume-mount-troubleshooting.md`, `bulk-load-performance.md`
+
+인덱스 표에는 **어느 Case에서 나온 행인지** 열을 하나 둔다. 표에서 조치를 찾고, 이유가 궁금하면 그 Case로 내려간다.
 
 ---
 
@@ -389,5 +461,5 @@ Troubleshooting·운영 문서는 서사(Background → … → Lessons)만으�
 ---
 
 Engineering Notes Writing Guide
-Version 1.1
-Last Updated: 2026-08-06
+Version 1.2
+Last Updated: 2026-11-12
